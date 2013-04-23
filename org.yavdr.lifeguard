@@ -3,12 +3,12 @@
  "http://www.freedesktop.org/standards/dbus/1.0/busconfig.dtd">
 <busconfig>
 
-  <!-- Only user root can own the vdr-dbus-service -->
+  <!-- Only user root can own the dbus-service -->
   <policy user="root">
     <allow own="org.acpi.wakeup"/>
   </policy>
 
-  <!-- allow everyone to call vdr-frontend methods -->
+  <!-- allow everyone to call lifeguard-ng dbus methods -->
   <policy context="default">
     <allow send_destination="org.acpi.wakeup"/>
     <allow receive_sender="org.acpi.wakeup"/>
