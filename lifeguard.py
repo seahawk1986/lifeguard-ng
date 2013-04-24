@@ -73,14 +73,7 @@ class Main(dbus.service.Object):
                 self.inet[connection] = int(port)
         if self.parser.has_section("User"):
             [self.users.append(user) for user, description in self.parser.items("User")]
-        
-    def check_for_value(self, data, expected):
-        for key,value in d.items():
-            if value is not expected:
-                yield key
-            else:
-                pass
-        
+
     def check_hosts(self):
         check_results = []
         for host in self.hostnames:
@@ -89,46 +82,37 @@ class Main(dbus.service.Object):
            check_results.append(current)
            current.start()
         for el in check_results:
-            el.join()
-            if el.status() is True:
-                return el.ip
+                el.join()
+                if el.status() is True:
+                    return el.ip
                 
     def check_user(self):
-        users = psutil.get_users()
-        for user in users:
-            if user.name in self.users:
-                return user.name
+        return next((user.name for user in psutil.get_users() if user.name in self.users), None)
 
     def check_nfs(self):
         if self.enableNFS is True:
             p = subprocess.Popen(['showmount',"-d"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            lines = p.stdout.readlines()
-            for line in lines:
-                line = line.decode()
-                if line.startswith('/'):
-                    return line.replace("\n","")
-                
+            for line in p.stdout.readlines():
+                return next((lined.replace("\n","") for lined in line.decode() if lined.startswith('/')), None)
+
     def check_process(self):
         if len(self.processnames) >0:
-            for process in psutil.process_iter():
-                if process.name in self.processnames:
-                    return process.name
+            return next((process.name for process in psutil.process_iter() if process.name in self.processnames), None)
 
     def check_tcp(self):
-        for process in psutil.process_iter():
-            for connection in process.get_connections():
-                    for name, port in self.inet.items():
-                        if connection.local_address[1] and port == connection.local_address[1]:
-                            return name
-        
+        #for p in psutil.process_iter():
+        #    for c in p.get_connections():
+        connections = []
+        connectionl = [p.get_connections() for p in psutil.process_iter()]
+        for c in connectionl: connections.extend(c)
+        for c in connections:
+                result =  next((name for name, port in self.inet.items() if c.status is "ESTABLISHED" and port == c.local_address[1]), None)
+                if result is not None: return result
+
     def check_ssh(self):
         if self.enableSSH is True:
-            for process in psutil.process_iter():
-                if "sshd" in process.name:
-                    cons = process.get_connections()
-                    for con in cons:
-                        if con.status is 'ESTABLISHED':
-                            return process.name
+            for p in [p for p in psutil.process_iter() if "sshd" in str(p.name)]:
+                return next((con.remote_address[0] for con in p.get_connections() if "ESTABLISHED" in con.status), None)
 
     def check_samba(self):
         """thanks to http://swick.2flub.org/smbstatus-Ausgabe-pro-User-statt-PID"""
@@ -154,7 +138,7 @@ class Main(dbus.service.Object):
         self.check_samba:"Samba share {0} active",
         self.check_nfs:"NFS share {0} active",
         self.check_tcp:"tcp connection: {0} active",
-        self.check_ssh:"SSH connection active",
+        self.check_ssh:"SSH connection from {0} active",
         self.check_user:"User {0} still logged in",
         self.check_hosts:"host {0} still alive",
         }
