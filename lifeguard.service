@@ -1,0 +1,14 @@
+[Unit]
+Description=lifeguard for system services
+Requires=dbus.service dbus.socket
+
+[Service]
+Type=dbus
+BusName=org.yavdr.lifeguard
+ExecStart=/usr/bin/lifeguard
+TimeoutSec=5
+KillMode=process
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target
