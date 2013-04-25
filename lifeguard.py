@@ -21,13 +21,9 @@ class ip_check(threading.Thread):
         self.ip = ip
         self.__successful_pings = -1
     def run(self):
-        ping_out = subprocess.call(["ping", "-c", "1", "-W", "250", self.ip], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.__successful_pings = ping_out
+        self.ping = subprocess.call(["ping", "-c", "1", "-W", "250", self.ip], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     def status(self):
-        if self.__successful_pings is 1:
-            return False
-        elif self.__successful_pings is 0:
-            return True
+        return not bool(self.ping)
 
 class Main(dbus.service.Object):
     def __init__(self, config='lifeguard.conf'):
@@ -100,14 +96,12 @@ class Main(dbus.service.Object):
             return next((process.name for process in psutil.process_iter() if process.name in self.processnames), None)
 
     def check_tcp(self):
-        #for p in psutil.process_iter():
-        #    for c in p.get_connections():
         connections = []
         connectionl = [p.get_connections() for p in psutil.process_iter()]
-        for c in connectionl: connections.extend(c)
+        for con in connectionl:
+            connections.extend(con)
         for c in connections:
                 result =  next((name for name, port in self.inet.items() if c.status is "ESTABLISHED" and port == c.local_address[1]), None)
-                if result is not None: return result
 
     def check_ssh(self):
         if self.enableSSH is True:
@@ -127,7 +121,7 @@ class Main(dbus.service.Object):
                 if self.matchFiles.match(line):
                     if self.matchFiles.match(line).group(1) not in USERS:
                       USERS[self.matchFiles.match(line).group(1)] = "unknown"
-                    #yield USERS[self.matchFiles.match(line).group(1)] + " on " + os.path.join(self.matchFiles.match(line).group(2), self.matchFiles.match(line).group(3))
+                    #return USERS[self.matchFiles.match(line).group(1)] + " on " + os.path.join(self.matchFiles.match(line).group(2), self.matchFiles.match(line).group(3))
                     return os.path.join(self.matchFiles.match(line).group(2), self.matchFiles.match(line).group(3))
 
     @dbus.service.method('org.yavdr.lifeguard', out_signature='bs')
@@ -145,7 +139,6 @@ class Main(dbus.service.Object):
         for f, s in checkf.items():
             result = f()
             if result is not None:
-                #print(False, s.format(result[0]))
                 return False, s.format(result)
         return True, "shutdown possible"
 
