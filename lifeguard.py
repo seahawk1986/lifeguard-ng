@@ -26,7 +26,7 @@ class ip_check(threading.Thread):
         return not bool(self.ping)
 
 class Main(dbus.service.Object):
-    def __init__(self, config='lifeguard.conf'):
+    def __init__(self, config='/etc/lifeguard.conf'):
         self.wakeupTimer = {}
         bus_name = dbus.service.BusName('org.yavdr.lifeguard', bus=dbus.SystemBus())
         dbus.service.Object.__init__(self, bus_name, '/Lifeguard')
