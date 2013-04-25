@@ -14,4 +14,8 @@ $ ./check-lifeguard
 method return sender=:1.272 -> dest=:1.275 reply_serial=2
    boolean false
    string "SSH connection from ::ffff:192.168.1.132 active"
+$ ./check-lifeguard
+method return sender=:1.272 -> dest=:1.276 reply_serial=2
+   boolean true
+   string "shutdown possible"
 ```
