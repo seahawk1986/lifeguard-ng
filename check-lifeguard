@@ -1,0 +1,6 @@
+#!/bin/bash
+DEST=org.yavdr.lifeguard
+OBJECT=/Lifeguard
+INTERFACE=Check
+
+dbus-send --system --type=method_call --dest=$DEST --print-reply $OBJECT $DEST.$INTERFACE
