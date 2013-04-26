@@ -6,7 +6,7 @@ import os
 import sys
 import re
 if int(psutil.__version__.replace(".","")) < 60:
-    print("requires psutil >= 0.7.0")
+    print("requires psutil >= 0.6.0")
     exit(1)
 from gi.repository import GObject
 import threading
