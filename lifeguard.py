@@ -5,7 +5,7 @@ import psutil
 import os
 import sys
 import re
-if int(psutil.__version__.replace(".","")) < 70:
+if int(psutil.__version__.replace(".","")) < 60:
     print("requires psutil >= 0.7.0")
     exit(1)
 from gi.repository import GObject
