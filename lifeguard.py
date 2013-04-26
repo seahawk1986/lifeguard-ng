@@ -96,14 +96,12 @@ class Main(dbus.service.Object):
             return next((process.name for process in psutil.process_iter() if process.name in self.processnames), None)
 
     def check_tcp(self):
-        connections = []
         connectionl = [(p.get_connections(), p.name) for p in psutil.process_iter() if p.name in self.inet.keys()]
         for c, pname in connectionl:
+            connections = []
             connections.extend(c)
             result =  next(("{0} on port {1}".format(pname,self.inet[pname])  for c in connections if c.status == "ESTABLISHED" and self.inet[pname] == c.local_address[1]), None)
-            connections = []
             if result is not None: return result
-        return None
 
     def check_ssh(self):
         if self.enableSSH is True:

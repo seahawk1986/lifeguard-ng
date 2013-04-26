@@ -1,9 +1,10 @@
 [Unit]
 Description=lifeguard for system services
 Requires=dbus.service dbus.socket
+After=dbus.service dbus.socket
 
 [Service]
-Type=dbus
+Type=simple
 BusName=org.yavdr.lifeguard
 ExecStart=/usr/bin/lifeguard
 TimeoutSec=5
