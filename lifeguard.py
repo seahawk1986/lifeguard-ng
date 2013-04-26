@@ -97,15 +97,17 @@ class Main(dbus.service.Object):
 
     def check_tcp(self):
         connections = []
-        connectionl = [p.get_connections() for p in psutil.process_iter()]
-        for con in connectionl:
-            connections.extend(con)
-        for c in connections:
-                result =  next((name for name, port in self.inet.items() if c.status is "ESTABLISHED" and port == c.local_address[1]), None)
+        connectionl = [(p.get_connections(), p.name) for p in psutil.process_iter() if p.name in self.inet.keys()]
+        for c, pname in connectionl:
+            connections.extend(c)
+            result =  next(("{0} on port {1}".format(pname,self.inet[pname])  for c in connections if c.status == "ESTABLISHED" and self.inet[pname] == c.local_address[1]), None)
+            connections = []
+            if result is not None: return result
+        return None
 
     def check_ssh(self):
         if self.enableSSH is True:
-            for p in [p for p in psutil.process_iter() if "sshd" in str(p.name)]:
+            for p in [p for p in psutil.process_iter() if "sshd" == p.name]:
                 return next((con.remote_address[0] for con in p.get_connections() if "ESTABLISHED" in con.status), None)
 
     def check_samba(self):
@@ -123,6 +125,11 @@ class Main(dbus.service.Object):
                       USERS[self.matchFiles.match(line).group(1)] = "unknown"
                     #return USERS[self.matchFiles.match(line).group(1)] + " on " + os.path.join(self.matchFiles.match(line).group(2), self.matchFiles.match(line).group(3))
                     return os.path.join(self.matchFiles.match(line).group(2), self.matchFiles.match(line).group(3))
+
+    @dbus.service.method('org.yavdr.lifeguard', out_signature='bs')
+    def CheckVDR(self):
+        files = psutil.Process((next((p.pid for p in psutil.process_iter() if "vdr" == str(p.name)), None))).get_open_files()
+        return(next(((False, "VDR has lock in video dir") for file in files if file.path.endswith(("/index",".ts"))), (True, "no file locks in video dir")))
 
     @dbus.service.method('org.yavdr.lifeguard', out_signature='bs')
     def Check(self):
