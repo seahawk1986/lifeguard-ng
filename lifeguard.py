@@ -163,8 +163,7 @@ class Main(dbus.service.Object):
             for p in [p for p in psutil.process_iter() if "sshd" == p.name]:
                 return next(
                     (
-                        con.remote_address[0] for con in
-                        p.get_connections() if "ESTABLISHED" in con.status
+                        con.remote_address[0] for con in p.get_connections() if "ESTABLISHED" in str(con.status)
                     ),
                     None
                 )
