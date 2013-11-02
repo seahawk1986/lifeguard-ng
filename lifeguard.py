@@ -127,7 +127,7 @@ class Main(dbus.service.Object):
             result = next(
                 (con for con in connections if con.find('shilp') >= 0),
                  None
-                ).split()[3]
+                )
 
             '''p = subprocess.Popen(
                 ['showmount',"-d"],
@@ -143,7 +143,7 @@ class Main(dbus.service.Object):
                     None
                 )'''
             if result is not None:
-                #result.replace(
+                result = result.split()[3]
                 return result
 
     def check_process(self):
