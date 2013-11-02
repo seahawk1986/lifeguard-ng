@@ -116,7 +116,20 @@ class Main(dbus.service.Object):
 
     def check_nfs(self):
         if self.enableNFS is True:
+            # alternative NFS recognition
             p = subprocess.Popen(
+                ['ss', '-t', '-o', 'state', 'established'],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT
+            )
+            stdout, stderr = p.communicate()
+            connections = stdout.decode().split('\n')
+            result = next(
+                (con for con in connections if con.find('shilp') >= 0),
+                 None
+                ).split()[3]
+
+            '''p = subprocess.Popen(
                 ['showmount',"-d"],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT
@@ -128,9 +141,10 @@ class Main(dbus.service.Object):
                         in line.decode() if lined.startswith('/')
                     ),
                     None
-                )
-                if result is not None:
-                    return result
+                )'''
+            if result is not None:
+                #result.replace(
+                return result
 
     def check_process(self):
         if len(self.processnames) >0:
