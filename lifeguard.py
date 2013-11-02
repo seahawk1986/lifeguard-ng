@@ -125,7 +125,8 @@ class Main(dbus.service.Object):
             stdout, stderr = p.communicate()
             connections = stdout.decode().split('\n')
             result = next(
-                (con for con in connections if con.find('shilp') >= 0),
+                (con for con in connections if (con.find('shilp') >= 0 or
+                                                con.find('nfs') >= 0)),
                  None
                 )
 
