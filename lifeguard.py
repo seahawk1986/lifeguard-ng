@@ -175,7 +175,9 @@ class Main(dbus.service.Object):
 
     def check_ssh(self):
         if self.enableSSH is True:
-            for p in [p for p in psutil.process_iter() if "sshd" == p.name]:
+            for p in [p for p in psutil.process_iter() if "sshd" == p.as_dict(
+                                                                attrs=['name']
+                                                                )['name'] ]:
                 return next(
                     (
                         con.remote_address[0] for con in p.get_connections() if "ESTABLISHED" in str(con.status)
