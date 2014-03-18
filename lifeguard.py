@@ -151,15 +151,15 @@ class Main(dbus.service.Object):
         if len(self.processnames) >0:
             return next(
                 (
-                    process.name for process in psutil.process_iter()
-                    if process.name in self.processnames
+                    process.as_dict(attrs=['name'])['name'] for process in psutil.process_iter()
+                    if process.as_dict(attrs=['name'])['name'] in self.processnames
                 ),
                 None
             )
 
     def check_tcp(self):
-        connectionl = [(p.get_connections(), p.name) for p in
-                       psutil.process_iter() if p.name in self.inet.keys()
+        connectionl = [(p.connections(), p.as_dict(attrs=['name'])['name']) for p in
+                       psutil.process_iter() if p.as_dict(attrs=['name'])['name'] in self.inet.keys()
         ]
         for c, pname in connectionl:
             connections = []
