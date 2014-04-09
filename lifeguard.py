@@ -87,8 +87,9 @@ class Main(dbus.service.Object):
             for process, description in self.parser.items("Process"):
                 self.processnames.append(process)
         if self.parser.has_section("TCP"):
-            for connection, port in self.parser.items("TCP"):
-                self.inet[connection] = int(port)
+            for connection, ports in self.parser.items("TCP"):
+                portlist = ports.split()
+                self.inet[connection] = [int(port.strip()) for port in portlist]
         if self.parser.has_section("User"):
             for user, description in self.parser.items("User"):
                 self.users.append(user)
@@ -165,9 +166,9 @@ class Main(dbus.service.Object):
             connections = []
             connections.extend(c)
             result =  next(
-                ("{0} on port {1}".format(pname,self.inet[pname])
+                ("{0} on port {1}".format(pname, c.local_address[1])
                     for c in connections if c.status == "ESTABLISHED"
-                    and self.inet[pname] == c.local_address[1]
+                    and c.local_address[1] in self.inet[pname] # == c.local_address[1]
                 ),
                 None
             )
