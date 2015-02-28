@@ -5,7 +5,9 @@ import psutil
 import os
 import sys
 import re
-if int(psutil.__version__.replace(".","")) < 60:
+
+
+if int(psutil.__version__.replace(".", "")) < 60:
     print("requires psutil >= 0.6.0")
     exit(1)
 from gi.repository import GObject
@@ -15,35 +17,40 @@ import dbus
 import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
 
-class ip_check(threading.Thread):
-    def __init__ (self,ip):
+
+class ip_check(threading. Thread):
+    def __init__(self, ip):
         threading.Thread.__init__(self)
         self.ip = ip
         self.__successful_pings = -1
+
     def run(self):
         self.ping = subprocess.call(
             ["ping", "-c", "1", "-W", "250", self.ip],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
+
     def status(self):
         return not bool(self.ping)
+
 
 class Main(dbus.service.Object):
     def __init__(self, config='/etc/lifeguard.conf'):
         self.wakeupTimer = {}
+        self.bus = dbus.SystemBus()
         bus_name = dbus.service.BusName(
-            'org.yavdr.lifeguard', bus=dbus.SystemBus()
+            'org.yavdr.lifeguard', bus=self.bus
         )
         dbus.service.Object.__init__(self, bus_name, '/Lifeguard')
         self.init_parser(config)
         self.config = config
         self.matchUsers = re.compile(
             r'\s*(\d+)\s+([\w|\d|\S]+)\s+([\w|\d|\S]+)\s+([\w|\d|\S]+)\s+\(([\w|\d|\S]+)\)$',
-            re.M|re.I
+            re.M | re.I
         )
         self.matchFiles = re.compile(
             r'(\d+)\s+\d+\s+\S+\s+0x\S+\s+\S+\s+\S+\s+(\S+)\s+(.*?)\s{3}.*?$',
-            re.M|re.I
+            re.M | re.I
         )
 
     def init_parser(self, config):
@@ -89,7 +96,8 @@ class Main(dbus.service.Object):
         if self.parser.has_section("TCP"):
             for connection, ports in self.parser.items("TCP"):
                 portlist = ports.split()
-                self.inet[connection] = [int(port.strip()) for port in portlist]
+                self.inet[connection] = [int(port.strip()
+                                             ) for port in portlist]
         if self.parser.has_section("User"):
             for user, description in self.parser.items("User"):
                 self.users.append(user)
@@ -97,14 +105,14 @@ class Main(dbus.service.Object):
     def check_hosts(self):
         check_results = []
         for host in self.hostnames:
-           ip = host
-           current = ip_check(ip)
-           check_results.append(current)
-           current.start()
+            ip = host
+            current = ip_check(ip)
+            check_results.append(current)
+            current.start()
         for el in check_results:
-                el.join()
-                if el.status() is True:
-                    return el.ip
+            el.join()
+            if el.status() is True:
+                return el.ip
 
     def check_user(self):
         return next(
@@ -128,8 +136,8 @@ class Main(dbus.service.Object):
             result = next(
                 (con for con in connections if (con.find('shilp') >= 0 or
                                                 con.find('nfs') >= 0)),
-                 None
-                )
+                None
+            )
 
             '''p = subprocess.Popen(
                 ['showmount',"-d"],
@@ -149,39 +157,42 @@ class Main(dbus.service.Object):
                 return result
 
     def check_process(self):
-        if len(self.processnames) >0:
+        if len(self.processnames) > 0:
             return next(
                 (
-                    process.as_dict(attrs=['name'])['name'] for process in psutil.process_iter()
-                    if process.as_dict(attrs=['name'])['name'] in self.processnames
+                    process.as_dict(attrs=['name'])['name'] for process
+                    in psutil.process_iter() if process.as_dict(
+                        attrs=['name'])['name'] in self.processnames
                 ),
                 None
             )
 
     def check_tcp(self):
-        connectionl = [(p.connections(), p.as_dict(attrs=['name'])['name']) for p in
-                       psutil.process_iter() if p.as_dict(attrs=['name'])['name'] in self.inet.keys()
-        ]
+        connectionl = [(p.connections(), p.as_dict(attrs=['name'])['name']
+                        ) for p in psutil.process_iter() if p.as_dict(
+                            attrs=['name'])['name'] in self.inet.keys()]
         for c, pname in connectionl:
             connections = []
             connections.extend(c)
-            result =  next(
+            result = next(
                 ("{0} on port {1}".format(pname, c.local_address[1])
                     for c in connections if c.status == "ESTABLISHED"
-                    and c.local_address[1] in self.inet[pname] # == c.local_address[1]
-                ),
+                    and c.local_address[1] in self.inet[pname]
+                 ),
                 None
             )
-            if result is not None: return result
+            if result is not None:
+                return result
 
     def check_ssh(self):
         if self.enableSSH is True:
-            for p in [p for p in psutil.process_iter() if "sshd" == p.as_dict(
-                                                                attrs=['name']
-                                                                )['name'] ]:
+            for p in [
+                p for p in psutil.process_iter() if "sshd" == p.as_dict(
+                    attrs=['name'])['name']]:
                 return next(
                     (
-                        con.remote_address[0] for con in p.get_connections() if "ESTABLISHED" in str(con.status)
+                        con.remote_address[0] for con in p.get_connections()
+                        if "ESTABLISHED" in str(con.status)
                     ),
                     None
                 )
@@ -205,13 +216,12 @@ class Main(dbus.service.Object):
                     )
                 if self.matchFiles.match(line):
                     if self.matchFiles.match(line).group(1) not in USERS:
-                      USERS[self.matchFiles.match(line).group(1)] = "unknown"
+                        USERS[self.matchFiles.match(line).group(1)] = "unknown"
                     '''return USERS[self.matchFiles.match(line).group(1)] +
                     " on " + os.path.join(self.matchFiles.match(line).group(2),
                     self.matchFiles.match(line).group(3))'''
                     return os.path.join(self.matchFiles.match(line).group(2),
-                                        self.matchFiles.match(line).group(3)
-                    )
+                                        self.matchFiles.match(line).group(3))
 
     @dbus.service.method('org.yavdr.lifeguard', out_signature='bs')
     def CheckVDR(self):
@@ -219,23 +229,22 @@ class Main(dbus.service.Object):
         files = psutil.Process(
             (
                 next(
-                        (
-                            p.pid for p in psutil.process_iter()
-                            if "vdr" == str(p.name)
-                        ),
-                        None
+                    (
+                        p.pid for p in psutil.process_iter()
+                        if "vdr" == str(p.name)
+                    ),
+                    None
                 )
             )
         ).get_open_files()
         return(
             next(
-                    (
-                        (
-                            False, "VDR has lock in video dir") for file
-                            in files if file.path.endswith(("/index",".ts"))
-                    ),
-                    (
-                        True, "no file locks in video dir"
+                (
+                    (False, "VDR has lock in video dir") for file
+                    in files if file.path.endswith(("/index", ".ts"))
+                ),
+                (
+                    True, "no file locks in video dir"
                 )
             )
         )
@@ -244,13 +253,13 @@ class Main(dbus.service.Object):
     def Check(self):
         self.init_parser(self.config)
         checkf = {
-        self.check_process:"process {0} active",
-        self.check_samba:"Samba share {0} active",
-        self.check_nfs:"NFS share {0} active",
-        self.check_tcp:"tcp connection: {0} active",
-        self.check_ssh:"SSH connection from {0} active",
-        self.check_user:"User {0} still logged in",
-        self.check_hosts:"host {0} still alive",
+            self.check_process: "process {0} active",
+            self.check_samba: "Samba share {0} active",
+            self.check_nfs: "NFS share {0} active",
+            self.check_tcp: "tcp connection: {0} active",
+            self.check_ssh: "SSH connection from {0} active",
+            self.check_user: "User {0} still logged in",
+            self.check_hosts: "host {0} still alive",
         }
         for f, s in checkf.items():
             result = f()
