@@ -138,20 +138,6 @@ class Main(dbus.service.Object):
                                                 con.find('nfs') >= 0)),
                 None
             )
-
-            '''p = subprocess.Popen(
-                ['showmount',"-d"],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT
-            )
-            for line in p.stdout.readlines():
-                result = next(
-                    (
-                        lined.replace("\n","") for lined
-                        in line.decode() if lined.startswith('/')
-                    ),
-                    None
-                )'''
             if result is not None:
                 result = result.split()[3]
                 return result
