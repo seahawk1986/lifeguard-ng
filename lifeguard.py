@@ -189,13 +189,15 @@ class Main(dbus.service.Object):
             for p in [
                 p for p in psutil.process_iter() if "sshd" == p.as_dict(
                     attrs=['name'])['name']]:
-                return next(
+                n = next(
                     (
                         con.remote_address[0] for con in p.get_connections()
-                        if "ESTABLISHED" in str(con.status)
+                        if "ESTABLISHED" in con.status
                     ),
                     None
                 )
+                if n:
+                    return n
 
     def check_samba(self):
         """http://swick.2flub.org/smbstatus-Ausgabe-pro-User-statt-PID"""
