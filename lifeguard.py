@@ -177,7 +177,7 @@ class Main(dbus.service.Object):
                     attrs=['name'])['name']]:
                 n = next(
                     (
-                        con.remote_address[0] for con in p.get_connections()
+                        con.remote_address[0] for con in p.connections()
                         if "ESTABLISHED" in con.status
                     ),
                     None
