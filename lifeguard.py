@@ -117,7 +117,7 @@ class Main(dbus.service.Object):
     def check_user(self):
         return next(
             (
-                user.name for user in psutil.get_users()
+                user.name for user in psutil.users()
                 if user.name in self.users
             ),
             None
