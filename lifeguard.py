@@ -161,9 +161,9 @@ class Main(dbus.service.Object):
             connections = []
             connections.extend(c)
             result = next(
-                ("{0} on port {1}".format(pname, c.local_address[1])
+                ("{0} on port {1}".format(pname, c.laddr[1])
                     for c in connections if c.status == "ESTABLISHED"
-                    and c.local_address[1] in self.inet[pname]
+                    and c.laddr[1] in self.inet[pname]
                  ),
                 None
             )
