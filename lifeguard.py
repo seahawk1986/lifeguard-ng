@@ -18,7 +18,7 @@ import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
 
 
-class ip_check(threading. Thread):
+class IP_Check(threading. Thread):
     def __init__(self, ip):
         threading.Thread.__init__(self)
         self.ip = ip
@@ -102,7 +102,7 @@ class Main(dbus.service.Object):
         check_results = []
         for host in self.hostnames:
             ip = host
-            current = ip_check(ip)
+            current = IP_Check(ip)
             check_results.append(current)
             current.start()
         for el in check_results:
@@ -122,18 +122,16 @@ class Main(dbus.service.Object):
     def check_nfs(self):
         if self.enableNFS is True:
             # alternative NFS recognition
-            p = subprocess.Popen(
+            p = subprocess.run(
                 ['ss', '-t', '-o', 'state', 'established'],
                 stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT
+                stderr=subprocess.STDOUT,
+                universal_newlines=True,
             )
-            stdout, stderr = p.communicate()
-            connections = stdout.decode().split('\n')
             result = next(
-                (con for con in connections if (con.find('shilp') >= 0 or
-                                                con.find('nfs') >= 0)),
-                None
-            )
+                    (con for con in p.stdout.splitlines()
+                        if (con.find('shilp') >= 0 or con.find('nfs') >= 0)),
+                    None)
             if result is not None:
                 result = result.split()[3]
                 return result
