@@ -44,10 +44,6 @@ class Main(dbus.service.Object):
         dbus.service.Object.__init__(self, bus_name, '/Lifeguard')
         self.init_parser(config)
         self.config = config
-        self.matchUsers = re.compile(
-            r'\s*(\d+)\s+([\w|\d|\S]+)\s+([\w|\d|\S]+)\s+([\w|\d|\S]+)\s+\(([\w|\d|\S]+)\)$',
-            re.M | re.I
-        )
         self.matchFiles = re.compile(
             r'(\d+)\s+\d+\s+\S+\s+0x\S+\s+\S+\s+\S+\s+(\S+)\s+(.*?)\s{3}.*?$',
             re.M | re.I
@@ -188,28 +184,21 @@ class Main(dbus.service.Object):
     def check_samba(self):
         """http://swick.2flub.org/smbstatus-Ausgabe-pro-User-statt-PID"""
         if self.enableSamba is True:
-            p = subprocess.Popen(
+            p = subprocess.run(
                 'smbstatus',
-                shell=True,
+                universal_newlines=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT
             )
-            lines = p.stdout.readlines()
             USERS = {}
-            for line in lines:
-                line = line.decode()
-                if self.matchUsers.match(line):
-                    USERS[self.matchUsers.match(line).group(1)] = (
-                        self.matchUsers.match(line).group(2)
-                    )
-                if self.matchFiles.match(line):
-                    if self.matchFiles.match(line).group(1) not in USERS:
-                        USERS[self.matchFiles.match(line).group(1)] = "unknown"
-                    '''return USERS[self.matchFiles.match(line).group(1)] +
-                    " on " + os.path.join(self.matchFiles.match(line).group(2),
-                    self.matchFiles.match(line).group(3))'''
-                    return os.path.join(self.matchFiles.match(line).group(2),
-                                        self.matchFiles.match(line).group(3))
+            for line in p.stdout.splitlines():
+                f = self.matchFiles.match(line)
+                if f:
+                    basename = f.group(2)
+                    filename = f.group(3)
+                    if filename == '.':
+                        filename = ''
+                    return os.path.join(basename, filename)
 
     @dbus.service.method('org.yavdr.lifeguard', out_signature='bs')
     def CheckVDR(self):
