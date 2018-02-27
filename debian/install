@@ -1,0 +1,6 @@
+#!/usr/bin/dh-exec
+org.yavdr.lifeguard.conf etc/dbus-1/system.d/
+lifeguard.conf etc/
+check-lifeguard usr/bin/
+lifeguard.py => usr/bin/lifeguard
+S91.lifeguard     usr/share/vdr/shutdown-hooks/

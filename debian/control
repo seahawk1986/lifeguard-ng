@@ -1,0 +1,14 @@
+Source: lifeguard-ng
+Maintainer: Alexander Grothe <seahawk1986@gmx.de>
+Section: python
+Priority: optional
+Build-Depends: debhelper (>= 9), dh-systemd, dh-exec
+Standards-Version: 3.9.1
+
+Package: vdr-addon-lifeguard-ng
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}, python3, python3-gi, python3-dbus, ss 
+Breaks: vdr-addon-lifeguard
+Replaces: vdr-addon-lifeguard
+Provides: vdr-addon-lifeguard
+Description: replacement for vdr-addon-lifeguard
