@@ -38,9 +38,7 @@ class Main(dbus.service.Object):
     def __init__(self, config='/etc/lifeguard.conf'):
         self.wakeupTimer = {}
         self.bus = dbus.SystemBus()
-        bus_name = dbus.service.BusName(
-            'org.yavdr.lifeguard', bus=self.bus
-        )
+        bus_name = dbus.service.BusName('org.yavdr.lifeguard', bus=self.bus)
         dbus.service.Object.__init__(self, bus_name, '/Lifeguard')
         self.init_parser(config)
         self.config = config
@@ -195,6 +193,20 @@ class Main(dbus.service.Object):
                         filename = ''
                     return os.path.join(basename, filename)
 
+    def check_systemd_inhibitors(self):
+        """check inhibitors set by systemd/logind"""
+        login1 = self.bus.get_object('org.freedesktop.login1',
+                                    '/org/freedesktop/login1')
+        interface = 'org.freedesktop.login1.Manager'
+        inhibitors = login1.ListInhibitors(dbus_interface=interface)
+        for inhibitor in inhibitors:
+            what, who, why, inhibitor_type, *_ = inhibitors[0]
+            if inhibitor_type != 'block':
+                continue
+            if 'shutdown' in what or 'sleep' in what:
+                return f"{who}: {why}"
+
+
     @dbus.service.method('org.yavdr.lifeguard', out_signature='bs')
     def CheckVDR(self):
         print(self.EnableNFS)
@@ -232,6 +244,7 @@ class Main(dbus.service.Object):
             self.check_ssh: "SSH connection from {0} active",
             self.check_user: "User {0} still logged in",
             self.check_hosts: "host {0} still alive",
+            self.check_systemd_inhibitors: "shutdown inhibited by {0}",
         }
         for f, s in checkf.items():
             result = f()
