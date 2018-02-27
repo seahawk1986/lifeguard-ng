@@ -1,3 +1,9 @@
+lifeguard-ng (0.0.2-0yavdr0~bionic) bionic; urgency=medium
+
+  * update dependencies
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Tue, 27 Feb 2018 16:47:20 +0000
+
 lifeguard-ng (0.0.1-0yavdr0~bionic) bionic; urgency=medium
 
   * initial build 
