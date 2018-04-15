@@ -1,0 +1,17 @@
+lifeguard-ng (0.0.3-0yavdr0~bionic) bionic; urgency=medium
+
+  * fix shutdown check in S91.lifeguard script
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Sun, 15 Apr 2018 07:23:00 +0000
+
+lifeguard-ng (0.0.2-0yavdr0~bionic) bionic; urgency=medium
+
+  * update dependencies
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Tue, 27 Feb 2018 16:47:20 +0000
+
+lifeguard-ng (0.0.1-0yavdr0~bionic) bionic; urgency=medium
+
+  * initial build 
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Tue, 27 Feb 2018 13:53:23 +0000
