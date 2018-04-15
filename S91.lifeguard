@@ -3,10 +3,7 @@
 
 # if there is a reason not to shutdown, tell VDR about it
 REASON="$(check-lifeguard | sed -n '/boolean false/ {n;s/string[[:space:]]*"\(.*\)"/\1/;p}')"
-if [ "$REASON" ]; then
-	MESSAGE="$REASON"
-	# add an explanation to syslog that includes the reason
-#	logger -t "$DESC" "$MESSAGE"
-	echo "ABORT_MESSAGE=\"$MESSAGE\""
+if [ -n "$REASON" ]; then
+	echo "ABORT_MESSAGE=\"$REASON\""
 	exit 1
 fi
