@@ -74,15 +74,18 @@ class Main(dbus.service.Object):
         if self.parser.has_section("Options"):
             self.enableSamba = self.parser.getboolean(
                 'Options',
-                'EnableSamba'
+                'EnableSamba',
+                fallback = False
             )
             self.enableNFS = self.parser.getboolean(
                 'Options',
-                'EnableNFS'
+                'EnableNFS',
+                fallback = False
             )
             self.enableSSH = self.parser.getboolean(
                 'Options',
-                'EnableSSH'
+                'EnableSSH',
+                fallback = False
             )
         if self.parser.has_section("Process"):
             for process, description in self.parser.items("Process"):
