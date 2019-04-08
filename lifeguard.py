@@ -243,4 +243,7 @@ if __name__ == '__main__':
     DBusGMainLoop(set_as_default=True)
     main = Main()
     loop = GObject.MainLoop()
-    loop.run()
+    try:
+        loop.run()
+    except KeyboardInterrupt:
+        loop.quit()
