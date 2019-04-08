@@ -4,7 +4,7 @@ Requires=dbus.service dbus.socket
 After=dbus.service dbus.socket
 
 [Service]
-Type=simple
+Type=dbus
 BusName=org.yavdr.lifeguard
 ExecStart=/usr/bin/lifeguard
 TimeoutSec=5
