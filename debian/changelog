@@ -1,3 +1,9 @@
+lifeguard-ng (0.0.3-0yavdr0~focal) focal; urgency=medium
+
+  * adapt for modern versions of python3 and glib
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Thu, 09 Jan 2020 15:26:00 +0100
+
 lifeguard-ng (0.0.2-0yavdr0~bionic) bionic; urgency=medium
 
   * update dependencies
