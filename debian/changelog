@@ -1,8 +1,32 @@
-lifeguard-ng (0.0.3-0yavdr0~focal) focal; urgency=medium
+lifeguard-ng (0.0.5-0yavdr0~focal) focal; urgency=medium
 
-  * adapt for modern versions of python3 and glib
+  * adapt for modern python3 and glib versions 
 
- -- Alexander Grothe <seahawk1986@gmx.de>  Thu, 09 Jan 2020 15:26:00 +0100
+ -- Alexander Grothe <seahawk1986@gmx.de>  Thu, 09 Jan 2020 15:28:57 +0100
+
+lifeguard-ng (0.0.4-0yavdr1~focal) focal; urgency=medium
+
+  * rebuild for focal
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Wed, 27 Nov 2019 20:20:03 +0100
+
+lifeguard-ng (0.0.4-0yavdr0~bionic) bionic; urgency=medium
+
+  * new upstream tag
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Mon, 08 Apr 2019 12:38:01 +0200
+
+lifeguard-ng (0.0.2-1yavdr0~bionic) bionic; urgency=medium
+
+  * add missing dependency for python3-psutil 
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Thu, 02 Aug 2018 12:33:08 +0000
+
+lifeguard-ng (0.0.2-0yavdr1~bionic) bionic; urgency=medium
+
+  * automatic rebuild
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Thu, 01 Mar 2018 08:50:33 +0000
 
 lifeguard-ng (0.0.2-0yavdr0~bionic) bionic; urgency=medium
 
