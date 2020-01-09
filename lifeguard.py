@@ -10,9 +10,8 @@ import re
 if int(psutil.__version__.replace(".", "")) < 60:
     print("requires psutil >= 0.6.0")
     exit(1)
-from gi.repository import GObject
+from gi.repository import GLib
 import threading
-GObject.threads_init()
 import dbus
 import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
@@ -57,14 +56,14 @@ class Main(dbus.service.Object):
         self.enableSamba = False
         self.enableNFS = False
         self.enableSSH = False
-        self.parser = configparser.SafeConfigParser(
+        self.parser = configparser.ConfigParser(
             delimiters=(" ", ":", "="),
             allow_no_value=True,
             interpolation=None
         )
         self.parser.optionxform = str
         with open(config, 'r', encoding='utf-8') as f:
-            self.parser.readfp(f)
+            self.parser.read_file(f)
         self.get_settings()
 
     def get_settings(self):
@@ -258,7 +257,7 @@ class Main(dbus.service.Object):
 if __name__ == '__main__':
     DBusGMainLoop(set_as_default=True)
     main = Main()
-    loop = GObject.MainLoop()
+    loop = GLib.MainLoop()
     try:
         loop.run()
     except KeyboardInterrupt:
