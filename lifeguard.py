@@ -17,7 +17,7 @@ import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
 
 
-class IP_Check(threading. Thread):
+class IP_Check(threading.Thread):
     def __init__(self, ip):
         threading.Thread.__init__(self)
         self.ip = ip
@@ -111,10 +111,9 @@ class Main(dbus.service.Object):
                 return el.ip
 
     def check_user(self):
-        return next(
-            (user.name for user in psutil.users() if user.name in self.users),
-            None
-        )
+        for user in psutil.users():
+            if user.name in self.users:
+                return user.name
 
     def check_nfs(self):
         if self.enableNFS is True:
@@ -125,24 +124,17 @@ class Main(dbus.service.Object):
                 stderr=subprocess.STDOUT,
                 universal_newlines=True,
             )
-            result = next(
-                    (con for con in p.stdout.splitlines()
-                        if (con.find('shilp') >= 0 or con.find('nfs') >= 0)),
-                    None)
-            if result is not None:
-                result = result.split()[3]
-                return result
+            for line in p.stdout.splitlines():
+                recv_q, send_q, local, remote, *_ = line.split()
+                if local.endswith(":nfs") or local.endswith(":shilp"):
+                    return remote
 
     def check_process(self):
         if len(self.processnames) > 0:
-            return next(
-                (
-                    process.as_dict(attrs=['name'])['name'] for process
-                    in psutil.process_iter() if process.as_dict(
-                        attrs=['name'])['name'] in self.processnames
-                ),
-                None
-            )
+            for process in psutil.process_iter():
+                pname = process.as_dict(attrs=['name'])['name']
+                if pname in self.processnames:
+                    return pname
 
     def check_tcp(self):
         connectionl = [(p.connections(), p.as_dict(attrs=['name'])['name']
@@ -151,30 +143,18 @@ class Main(dbus.service.Object):
         for c, pname in connectionl:
             connections = []
             connections.extend(c)
-            result = next(
-                ("{0} on port {1}".format(pname, c.laddr[1])
-                    for c in connections if c.status == "ESTABLISHED"
-                    and c.laddr[1] in self.inet[pname]
-                 ),
-                None
-            )
-            if result is not None:
-                return result
+            for c in connections:
+                if c.status == "ESTABLISHED" and c.laddr[1] in self.inet[pname]:
+                    return f"{pname} on port {c.laddr[1]}"
 
     def check_ssh(self):
         if self.enableSSH is True:
             for p in [
                 p for p in psutil.process_iter() if "sshd" == p.as_dict(
                     attrs=['name'])['name']]:
-                n = next(
-                    (
-                        con.raddr[0] for con in p.connections()
-                        if "ESTABLISHED" in con.status
-                    ),
-                    None
-                )
-                if n:
-                    return n
+                for con in p.connections():
+                    if "ESTABLISHED" in con.status:
+                        return con.raddr[0]
 
     def check_samba(self):
         """http://swick.2flub.org/smbstatus-Ausgabe-pro-User-statt-PID"""
